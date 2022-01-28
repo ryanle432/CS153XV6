@@ -223,7 +223,7 @@ fork(void)
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
-// until its parent calls wait(0) to find out it exited.
+// until its parent calls wait() to find out it exited.
 void
 exit(int status)
 {
@@ -322,7 +322,7 @@ int
 waitpid(int pid, int *status, int options)
 {
   struct proc *p;
-  int havekids, pid;
+  int havekids;
   struct proc *curproc = myproc();
   
   acquire(&ptable.lock);
