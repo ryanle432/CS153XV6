@@ -3,13 +3,16 @@
 
 #define WNOHANG 	1
 
-int exitWait(void);
-int waitPid(void);
-int CELEBW02(void);
+  int exitWait(void);
+  int waitPid(void);
+  int CELEBW02(void);
 
 int main(int argc, char *argv[])
 {
-  printf(1, "\n This program tests the correctness of your lab#1\n");
+  int exitWait(void);
+  int waitPid(void);
+  int CELEBW02(void);
+ printf(1, "\n This program tests the correctness of your lab#1\n");
   
   if (atoi(argv[1]) == 1)
 	exitWait();
