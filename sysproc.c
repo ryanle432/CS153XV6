@@ -18,8 +18,7 @@ sys_exit(void)
 {
   int status;
   if (argint(0, &status) < 0){
-    //not arg - pass 0 to exit
-    exit(0);
+    return -1;
   }
   exit(status);
   return 0;  // not reached
@@ -28,7 +27,22 @@ sys_exit(void)
 int
 sys_wait(void)
 {
-  return wait(0);
+  int *status;
+  if( argptr(0, (char**)&status, sizeof(status)) < 0){
+    return -1;
+  }
+  return wait(status);
+}
+
+int
+sys_waitpid(void)
+{
+  int *status;
+  int pid = 0;
+  if( argptr(1, (char**)&status, sizeof(*status)) < 0){
+    return -1;
+  }
+  return waitpid(pid, status, 0);
 }
 
 int
