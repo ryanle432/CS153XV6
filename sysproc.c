@@ -97,15 +97,8 @@ sys_uptime(void)
 int
 sys_add(void)
 {
-<<<<<<< HEAD
-    int a = 1;
-    int b = 2020;
-    return a+b;
-}
-=======
   int a = 1;
   int b = 2020;
   cprintf("sys_add\n");
   return a + b;
 }
->>>>>>> upstream/master
