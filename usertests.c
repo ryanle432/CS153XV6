@@ -38,7 +38,7 @@ iputtest(void)
   printf(stdout, "iput test ok\n");
 }
 
-// does exit() call iput(p->cwd) in a transaction?
+// does exit(0) call iput(p->cwd) in a transaction?
 void
 exitiputtest(void)
 {
@@ -1782,7 +1782,7 @@ main(int argc, char *argv[])
   mem();
   pipe1();
   preempt();
-  exitwait(0);
+  exitwait();
 
   rmdot();
   fourteen();
