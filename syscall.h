@@ -20,8 +20,5 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-<<<<<<< HEAD
 #define SYS_add    22
-=======
-#define SYS_add    22
->>>>>>> upstream/master
+#define SYS_waitpid    23
