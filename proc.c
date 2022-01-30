@@ -232,7 +232,7 @@ exit(int status)
   int fd;
 
   //Exit status tracking
-  cprintf("\nexit is: %d\n",status);
+  //cprintf("\nexit is: %d\n",status);
   curproc->exitStatus = status;
 
   if(curproc == initproc)
@@ -322,20 +322,21 @@ int
 waitpid(int pid, int *status, int options)
 {
   struct proc *p;
-  int havekids;
   struct proc *curproc = myproc();
-  
+  int procExists, zomb_pid;
+  //cprintf("pid is initially:%d\n",pid);
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
-    havekids = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    procExists = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
       if(p->parent != curproc)
         continue;
-      havekids = 1;
-      if(p->state == ZOMBIE){
+      procExists = 1;
+      if(p->state == ZOMBIE && p->pid == pid){
         // Found one.
-        pid = p->pid;
+        //cprintf("p->pid:%d, pid:%x\n",p->pid,pid);
+        zomb_pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
         freevm(p->pgdir);
@@ -348,12 +349,12 @@ waitpid(int pid, int *status, int options)
         if (status != 0) {
           *status = p->exitStatus;
         }
-        return pid;
+        return zomb_pid;
       }
     }
 
     // No point waiting if we don't have any children.
-    if(!havekids || curproc->killed){
+    if(!procExists || curproc->killed){
       release(&ptable.lock);
       return -1;
     }
