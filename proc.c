@@ -223,7 +223,7 @@ fork(void)
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
-// until its parent calls wait(0) to find out it exited.
+// until its parent calls wait() to find out it exited.
 void
 exit(int status)
 {
@@ -232,7 +232,7 @@ exit(int status)
   int fd;
 
   //Exit status tracking
-  cprintf("\nexit is: %d\n",status);
+  //cprintf("\nexit is: %d\n",status);
   curproc->exitStatus = status;
 
   if(curproc == initproc)
@@ -309,6 +309,52 @@ wait(int *status)
 
     // No point waiting if we don't have any children.
     if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+
+int
+waitpid(int pid, int *status, int options)
+{
+  struct proc *p;
+  struct proc *curproc = myproc();
+  int procExists, zomb_pid;
+  //cprintf("pid is initially:%d\n",pid);
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    procExists = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+      if(p->parent != curproc)
+        continue;
+      procExists = 1;
+      if(p->state == ZOMBIE && p->pid == pid){
+        // Found one.
+        //cprintf("p->pid:%d, pid:%x\n",p->pid,pid);
+        zomb_pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        release(&ptable.lock);
+        if (status != 0) {
+          *status = p->exitStatus;
+        }
+        return zomb_pid;
+      }
+    }
+
+    // No point waiting if we don't have any children.
+    if(!procExists || curproc->killed){
       release(&ptable.lock);
       return -1;
     }
